@@ -25,13 +25,16 @@ jobs:
     name: Terraform ${{ github.event.inputs.action }}
     runs-on: [self-hosted, Linux, X64]
 
-    defaults:
-      run:
-        working-directory: ./mini-project-1
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Debug Repo Structure
+        run: |
+          echo "Current Directory:"
+          pwd
+          echo "Files:"
+          ls -R
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -58,14 +61,14 @@ jobs:
 
       - name: Terraform Apply
         if: github.event.inputs.action == 'apply'
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve
 
       - name: Confirm Destroy Safety Check
         if: github.event.inputs.action == 'destroy'
         run: |
           if [ "${{ github.event.inputs.confirm_destroy }}" != "yes" ]; then
             echo "ERROR: Destroy not confirmed."
-            echo "You must type exactly 'yes' (without quotes) in the 'confirm_destroy' field."
+            echo "You must type exactly 'yes' in the confirm_destroy field."
             exit 1
           fi
           echo "Destroy confirmed. Proceeding in 10 seconds..."
