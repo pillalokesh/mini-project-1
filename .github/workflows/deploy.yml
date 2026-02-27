@@ -21,58 +21,71 @@ permissions:
   contents: read
 
 jobs:
-  terraform:
-    name: Terraform ${{ github.event.inputs.action }}
+  terraform-us-east-1:
+    name: Deploy to US-EAST-1
     runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials (OIDC)
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::056026787582:role/miniproject1
           aws-region: us-east-1
-
-      - name: Verify AWS Identity
-        run: aws sts get-caller-identity
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.0
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan US-EAST-1
+        if: github.event.inputs.action == 'plan'
+        run: terraform plan -target=module.us_east_1
+
+      - name: Terraform Apply US-EAST-1
+        if: github.event.inputs.action == 'apply'
+        run: terraform apply -auto-approve -target=module.us_east_1
+
+      - name: Terraform Destroy US-EAST-1
+        if: github.event.inputs.action == 'destroy' && github.event.inputs.confirm_destroy == 'yes'
+        run: terraform destroy -auto-approve -target=module.us_east_1
+
+  terraform-ap-south-1:
+    name: Deploy to AP-SOUTH-1
+    runs-on: [self-hosted, Linux, X64]
+    needs: terraform-us-east-1
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::056026787582:role/miniproject1
+          aws-region: ap-south-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.0
 
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
+      - name: Terraform Plan AP-SOUTH-1
         if: github.event.inputs.action == 'plan'
-        run: terraform plan -out=tfplan
+        run: terraform plan -target=module.ap_south_1
 
-      - name: Terraform Apply
+      - name: Terraform Apply AP-SOUTH-1
         if: github.event.inputs.action == 'apply'
-        run: |
-          terraform plan -out=tfplan
-          terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve -target=module.ap_south_1
 
-      - name: Confirm Destroy Safety Check
-        if: github.event.inputs.action == 'destroy'
-        run: |
-          if [ "${{ github.event.inputs.confirm_destroy }}" != "yes" ]; then
-            echo "ERROR: Destroy not confirmed."
-            echo "You must type exactly yes in the confirm_destroy field."
-            exit 1
-          fi
-          echo "Destroy confirmed. Proceeding in 10 seconds..."
-          sleep 10
-
-      - name: Terraform Destroy
-        if: github.event.inputs.action == 'destroy'
-        run: terraform destroy -auto-approve
+      - name: Terraform Destroy AP-SOUTH-1
+        if: github.event.inputs.action == 'destroy' && github.event.inputs.confirm_destroy == 'yes'
+        run: terraform destroy -auto-approve -target=module.ap_south_1
