@@ -29,6 +29,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Install Node.js (required for GitHub Actions that depend on it)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
