@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -15,7 +16,7 @@ permissions:
 jobs:
   terraform:
     name: Terraform Plan & Apply
-    runs-on: self-hosted 
+    runs-on: [self-hosted, Linux, X64]
 
     defaults:
       run:
@@ -49,5 +50,5 @@ jobs:
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: success() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
