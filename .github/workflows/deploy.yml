@@ -27,7 +27,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./terraform-aws-mini-project
+        working-directory: ./mini-project-1
 
     steps:
       - name: Checkout Code
