@@ -25,9 +25,7 @@ jobs:
     name: Terraform ${{ github.event.inputs.action }}
     runs-on: [self-hosted, Linux, X64]
 
-    defaults:
-      run:
-        working-directory: ./terraform-aws-mini-project
+
 
     steps:
       - name: Checkout Code
@@ -44,6 +42,11 @@ jobs:
           role-to-assume: arn:aws:iam::056026787582:role/miniproject1
           aws-region: us-east-1
 
+      - name: Verify Multi-Region Setup
+        run: |
+          echo "Deploying to regions: us-east-1, ap-south-1"
+          aws sts get-caller-identity
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -58,7 +61,9 @@ jobs:
 
       - name: Terraform Apply
         if: github.event.inputs.action == 'apply'
-        run: terraform apply -auto-approve tfplan
+        run: |
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan
 
       - name: Confirm Destroy Safety Check
         if: github.event.inputs.action == 'destroy'

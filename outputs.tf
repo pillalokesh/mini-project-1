@@ -1,34 +1,25 @@
-output "vpc_id" {
-  description = "VPC ID"
-  value       = aws_vpc.main.id
+# US-EAST-1 Outputs
+output "us_east_1_vpc_id" {
+  value = module.us_east_1.vpc_id
 }
 
-output "public_subnet_id" {
-  description = "Public Subnet ID"
-  value       = aws_subnet.public.id
+output "us_east_1_ec2_public_ip" {
+  value = module.us_east_1.ec2_public_ip
 }
 
-output "ec2_instance_id" {
-  description = "EC2 Instance ID"
-  value       = aws_instance.web.id
+output "us_east_1_s3_bucket" {
+  value = module.us_east_1.s3_bucket_name
 }
 
-output "ec2_public_ip" {
-  description = "EC2 Public IP"
-  value       = aws_instance.web.public_ip
+# AP-SOUTH-1 Outputs
+output "ap_south_1_vpc_id" {
+  value = module.ap_south_1.vpc_id
 }
 
-output "s3_bucket_name" {
-  description = "S3 Bucket Name"
-  value       = aws_s3_bucket.main.id
+output "ap_south_1_ec2_public_ip" {
+  value = module.ap_south_1.ec2_public_ip
 }
 
-output "security_group_id" {
-  description = "Security Group ID"
-  value       = aws_security_group.main.id
-}
-
-output "iam_role_name" {
-  description = "IAM Role Name"
-  value       = aws_iam_role.ec2_role.name
+output "ap_south_1_s3_bucket" {
+  value = module.ap_south_1.s3_bucket_name
 }
